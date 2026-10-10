@@ -1,0 +1,39 @@
+name: UnderxKontroL - CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  ejecutar-prueba:
+    name: Ejecutar prueba
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Verificar archivos de la web
+        run: |
+          echo "Verificando archivos de UnderxKontroL..."
+          test -f index.html
+          echo "OK: index.html existe"
+
+      - name: Verificar workflows
+        run: |
+          if [ -d ".github/workflows" ]; then
+            echo "OK: directorio de workflows encontrado"
+            find .github/workflows -maxdepth 1 -type f -print
+          else
+            echo "AVISO: no existe el directorio .github/workflows"
+          fi
