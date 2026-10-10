@@ -1,10 +1,7 @@
-name: UnderxKontroL - CI/CD
+name: SKYNET - Deploy GitHub Pages
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -14,26 +11,41 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
 jobs:
-  ejecutar-prueba:
-    name: Ejecutar prueba
+  BUILD:
+    name: Preparar despliegue
     runs-on: ubuntu-latest
 
     steps:
-      - name: Descargar código
+      - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Verificar archivos de la web
+      - name: Validar sitio web
         run: |
-          echo "Verificando archivos de UnderxKontroL..."
           test -f index.html
-          echo "OK: index.html existe"
+          echo "Sitio web validado"
 
-      - name: Verificar workflows
-        run: |
-          if [ -d ".github/workflows" ]; then
-            echo "OK: directorio de workflows encontrado"
-            find .github/workflows -maxdepth 1 -type f -print
-          else
-            echo "AVISO: no existe el directorio .github/workflows"
-          fi
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar artefacto
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  DEPLOY:
+    name: Deploy a GitHub Pages
+    runs-on: ubuntu-latest
+    needs: BUILD
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Publicar sitio web
+        id: deployment
+        uses: actions/deploy-pages@v4
