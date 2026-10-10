@@ -286,3 +286,132 @@ margin-right: 4px;
 margin-bottom: 6px;
 }
 }
+/* SKYNET LIVE MONITOR */
+
+.github-live-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 14px;
+  background: rgba(0, 217, 255, 0.05);
+  border: 1px solid rgba(0, 217, 255, 0.25);
+  border-radius: 8px;
+}
+
+.github-live-header strong {
+  color: #00eaff;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+#refresh-github-runs {
+  margin-left: auto;
+  padding: 9px 12px;
+  color: #00eaff;
+  background: #07111d;
+  border: 1px solid #00d9ff;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#refresh-github-runs:hover {
+  background: rgba(0, 217, 255, 0.12);
+}
+
+#refresh-github-runs:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.github-run-card {
+  margin: 12px 0;
+  padding: 16px;
+  background: rgba(5, 20, 35, 0.85);
+  border: 1px solid rgba(0, 217, 255, 0.25);
+  border-left: 3px solid #00d9ff;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.github-run-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.github-run-heading strong {
+  color: #d9f7ff;
+}
+
+.github-run-status {
+  padding: 5px 8px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.status-success {
+  color: #00ff9d;
+}
+
+.status-failure,
+.status-timed_out,
+.status-action_required {
+  color: #ff5470;
+}
+
+.status-in_progress,
+.status-queued,
+.status-requested,
+.status-waiting,
+.status-pending {
+  color: #00eaff;
+}
+
+.status-cancelled {
+  color: #ffca68;
+}
+
+.github-run-card p {
+  color: #91a9bd;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.github-run-card a {
+  display: inline-block;
+  margin-top: 6px;
+  color: #00eaff;
+  font-size: 12px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.github-run-card a:hover {
+  text-decoration: underline;
+}
+
+.github-last-refresh {
+  color: #91a9bd;
+  font-size: 11px;
+}
+
+@media (max-width: 600px) {
+  .github-live-header {
+    align-items: flex-start;
+  }
+
+  #refresh-github-runs {
+    margin-left: 0;
+  }
+
+  .github-run-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
