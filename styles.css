@@ -134,3 +134,155 @@
     padding: 15px;
   }
 }
+/* ==========================================
+SKYNET CONTROL CENTER
+888DigitalFactory | DevSecOps Dashboard
+========================================== */
+
+.control-center {
+margin-top: 22px;
+padding: 24px;
+width: 100%;
+box-sizing: border-box;
+overflow: hidden;
+}
+
+.control-center .panel-heading {
+display: flex;
+align-items: center;
+gap: 14px;
+margin-bottom: 22px;
+}
+
+.cc-grid {
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: 16px;
+}
+
+.cc-card {
+min-width: 0;
+padding: 20px;
+background: rgba(5, 20, 35, 0.85);
+border: 1px solid rgba(0, 217, 255, 0.3);
+border-radius: 10px;
+transition: border-color 0.25s ease, transform 0.25s ease,
+box-shadow 0.25s ease;
+}
+
+.cc-card:hover {
+border-color: #00eaff;
+transform: translateY(-3px);
+box-shadow: 0 0 18px rgba(0, 217, 255, 0.12);
+}
+
+.cc-icon {
+display: block;
+margin-bottom: 12px;
+font-size: 28px;
+}
+
+.cc-card h3 {
+color: #d9f7ff;
+font-size: 13px;
+letter-spacing: 1px;
+line-height: 1.5;
+}
+
+.cc-card p,
+.cc-monitor p {
+color: #91a9bd;
+font-size: 13px;
+line-height: 1.6;
+}
+
+.cc-btn,
+.cc-monitor a {
+display: inline-block;
+margin-top: 14px;
+padding: 11px 14px;
+border: 1px solid #00d9ff;
+border-radius: 6px;
+color: #00eaff;
+background: rgba(0, 217, 255, 0.05);
+text-decoration: none;
+font-size: 12px;
+font-weight: 700;
+text-align: center;
+transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cc-btn {
+display: block;
+}
+
+.cc-btn:hover,
+.cc-monitor a:hover {
+background: rgba(0, 217, 255, 0.15);
+box-shadow: 0 0 14px rgba(0, 217, 255, 0.15);
+}
+
+.cc-btn.ci {
+border-color: #00eaff;
+color: #00eaff;
+}
+
+.cc-btn.cicd {
+border-color: #a875ff;
+color: #c4a0ff;
+}
+
+.cc-btn.deploy {
+border-color: #00ff9d;
+color: #00ff9d;
+}
+
+.cc-monitor {
+margin-top: 22px;
+padding-top: 18px;
+border-top: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+.cc-monitor h3 {
+color: #00eaff;
+font-size: 14px;
+letter-spacing: 1px;
+}
+
+.cc-monitor a {
+margin-right: 8px;
+}
+
+.cc-btn:focus-visible,
+.cc-monitor a:focus-visible {
+outline: 2px solid #00ff9d;
+outline-offset: 4px;
+}
+
+/* TABLETS */
+@media (max-width: 900px) {
+.cc-grid {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+.control-center {
+margin-top: 16px;
+padding: 15px;
+}
+
+.cc-grid {
+grid-template-columns: minmax(0, 1fr);
+}
+
+.cc-card {
+padding: 16px;
+}
+
+.cc-monitor a {
+margin-right: 4px;
+margin-bottom: 6px;
+}
+}
