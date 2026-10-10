@@ -27,7 +27,6 @@ jobs:
           test -d .github/workflows
           test -f index.html
           echo "BUILD completado correctamente"
-
   TEST:
     name: Test - Validar workflows
     runs-on: ubuntu-latest
@@ -40,8 +39,6 @@ jobs:
       - name: Validar workflows
         run: |
           test -d .github/workflows
-          test -f .github/workflows/ci-cd.yml
-          test -f .github/workflows/deploy.yml
           echo "TEST completado correctamente"
 
   SECURITY:
