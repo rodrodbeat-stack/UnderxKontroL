@@ -32,3 +32,7 @@ No requiere instalación, Node.js ni dependencias.
 ## Importante
 
 Los números, estados, logs, métricas y pipelines que aparecen son **datos de demostración**. El dashboard es una interfaz estática interactiva; no ejecuta despliegues ni se conecta automáticamente a GitHub, GitLab, Azure, AWS, GCP, Kubernetes o herramientas de seguridad. Para usar datos reales, hay que implementar una API/backend seguro e integrar los servicios correspondientes. No publiques credenciales, tokens ni secretos en archivos frontend.
+
+
+## Dashboards interactivos
+Cada opción del menú lateral abre un dashboard cibernético independiente con KPI, estado de controles, gráficos ilustrativos, filtros locales y actualización de panel. Los datos son de demostración; para integraciones reales se necesita API/backend.
