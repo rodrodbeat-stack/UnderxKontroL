@@ -42,6 +42,7 @@ jobs:
           test -f .github/workflows/ci-cd.yml
           echo "TEST completado correctamente
 
+
   SECURITY:
     name: Security - Analisis basico
     runs-on: ubuntu-latest
