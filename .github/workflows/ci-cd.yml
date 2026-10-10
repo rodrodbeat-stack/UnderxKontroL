@@ -39,7 +39,8 @@ jobs:
       - name: Validar workflows
         run: |
           test -d .github/workflows
-          echo "TEST completado correctamente"
+          test -f .github/workflows/ci-cd.yml
+          echo "TEST completado correctamente
 
   SECURITY:
     name: Security - Analisis basico
