@@ -67,3 +67,149 @@ document.getElementById('refresh-pipelines').addEventListener('click', () => {
 document.getElementById('view-all').addEventListener('click', () => notify('Vista demo: integra GitLab CI o GitHub Actions para consultar todos los pipelines.'));
 function updateClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-CL',{hour12:false,timeZone:'America/Santiago'}) + ' CLT'; }
 updateClock(); setInterval(updateClock,1000);
+/* =====================================
+   SKYNET LIVE MONITOR
+   GitHub Actions - ejecuciones reales
+   ===================================== */
+
+(() => {
+  const API_URL =
+    "https://api.github.com/repos/rodrodbeat-stack/UnderxKontroL/actions/runs?per_page=5";
+
+  const container = document.getElementById("github-actions-live");
+  const refreshButton = document.getElementById("refresh-github-runs");
+
+  if (!container) return;
+
+  const statusLabels = {
+    success: "EXITOSO",
+    failure: "FALLIDO",
+    cancelled: "CANCELADO",
+    timed_out: "TIEMPO AGOTADO",
+    action_required: "REQUIERE ACCIÓN",
+    in_progress: "EN EJECUCIÓN",
+    queued: "EN COLA",
+    requested: "SOLICITADO",
+    waiting: "EN ESPERA",
+    pending: "PENDIENTE"
+  };
+
+  function getStatus(run) {
+    if (run.status !== "completed") {
+      return statusLabels[run.status] || run.status.toUpperCase();
+    }
+
+    return statusLabels[run.conclusion] ||
+      (run.conclusion || "FINALIZADO").toUpperCase();
+  }
+
+  function formatDate(date) {
+    if (!date) return "Fecha no disponible";
+
+    return new Date(date).toLocaleString("es-CL", {
+      dateStyle: "short",
+      timeStyle: "short"
+    });
+  }
+
+  async function loadGitHubRuns() {
+    container.replaceChildren();
+
+    const loading = document.createElement("p");
+    loading.textContent = "Consultando ejecuciones de GitHub Actions...";
+    container.appendChild(loading);
+
+    if (refreshButton) refreshButton.disabled = true;
+
+    try {
+      const response = await fetch(API_URL, {
+        headers: {
+          Accept: "application/vnd.github+json"
+        },
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error(`GitHub respondió HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      container.replaceChildren();
+
+      if (!data.workflow_runs || data.workflow_runs.length === 0) {
+        const message = document.createElement("p");
+        message.textContent = "No se encontraron ejecuciones.";
+        container.appendChild(message);
+        return;
+      }
+
+      data.workflow_runs.forEach(run => {
+        const card = document.createElement("article");
+        card.className = "github-run-card";
+
+        const heading = document.createElement("div");
+        heading.className = "github-run-heading";
+
+        const title = document.createElement("strong");
+        title.textContent = run.name || "GitHub Actions workflow";
+
+        const status = document.createElement("span");
+        const statusKey = run.status === "completed"
+          ? run.conclusion
+          : run.status;
+
+        status.className = `github-run-status status-${statusKey || "unknown"}`;
+        status.textContent = getStatus(run);
+
+        heading.append(title, status);
+
+        const details = document.createElement("p");
+        details.textContent =
+          `Rama: ${run.head_branch || "N/D"} · ` +
+          `Evento: ${run.event || "N/D"}`;
+
+        const date = document.createElement("p");
+        date.textContent = `Actualizado: ${formatDate(run.updated_at)}`;
+
+        const link = document.createElement("a");
+        link.href = run.html_url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "VER EJECUCIÓN ↗";
+
+        card.append(heading, details, date, link);
+        container.appendChild(card);
+      });
+
+      const updated = document.createElement("p");
+      updated.className = "github-last-refresh";
+      updated.textContent =
+        `Consulta actualizada: ${new Date().toLocaleTimeString("es-CL")}`;
+
+      container.appendChild(updated);
+
+    } catch (error) {
+      container.replaceChildren();
+
+      const message = document.createElement("p");
+      message.textContent =
+        "No se pudieron consultar las ejecuciones. " +
+        "Revisa tu conexión y el acceso público al repositorio.";
+
+      container.appendChild(message);
+      console.error("SKYNET Live Monitor:", error);
+
+    } finally {
+      if (refreshButton) refreshButton.disabled = false;
+    }
+  }
+
+  if (refreshButton) {
+    refreshButton.addEventListener("click", loadGitHubRuns);
+  }
+
+  loadGitHubRuns();
+
+  // Actualizar automáticamente cada 60 segundos.
+  window.setInterval(loadGitHubRuns, 60000);
+})();
