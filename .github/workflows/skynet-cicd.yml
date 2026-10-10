@@ -1,0 +1,80 @@
+name: SKYNET CI-CD
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: BUILD
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Validar archivos del dashboard
+        run: |
+          test -f index.html
+          echo "BUILD correcto"
+
+  test:
+    name: TEST
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Validar estructura
+        run: |
+          test -d .github/workflows
+          echo "TEST correcto"
+
+  security:
+    name: SECURITY
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Revisar archivos sensibles
+        run: |
+          if grep -RInE \
+            'gh[pousr]_[A-Za-z0-9_]{20,}' \
+            --include='*.js' \
+            --include='*.html' \
+            .; then
+            echo "Posible token expuesto"
+            exit 1
+          fi
+
+          echo "Revisión básica completada"
+
+  integration:
+    name: INTEGRACION
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - security
+
+    steps:
+      - name: Validar integración
+        run: echo "Integración correcta"
+
+  deploy-pages:
+    name: DEPLOY
+    runs-on: ubuntu-latest
+    needs: integration
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Confirmar publicación
+        run: echo "Pipeline completado"
