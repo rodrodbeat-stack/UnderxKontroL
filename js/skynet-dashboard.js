@@ -1,194 +1,496 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const root = document.getElementById("skynet-console");
-  if (!root) return;
+(() => {
+  "use strict";
 
-  root.innerHTML = `
-    <section class="skynet-header">
-      <div>
-        <span class="skynet-label">888 DIGITAL FACTORY</span>
-        <h1>SKYNET <span>CYBER BLUE</span></h1>
-        <p>DEVSECOPS COMMAND CENTER</p>
-      </div>
-      <div class="skynet-status">
-        <span class="status-light"></span>
-        SYSTEM ONLINE
-      </div>
-    </section>
+  const REPO = "rodrodbeat-stack/UnderxKontroL";
+  const API = `https://api.github.com/repos/${REPO}`;
 
-    <nav class="skynet-nav" aria-label="Navegación del centro de operaciones">
-      <button class="active" data-panel="command">COMMAND CENTER</button>
-      <button data-panel="cicd">CI/CD OPERATIONS</button>
-      <button data-panel="security">SECURITY OPS</button>
-      <button data-panel="cloud">CLOUD GOVERNANCE</button>
-      <button data-panel="environments">ENVIRONMENTS</button>
-      <button data-panel="observability">OBSERVABILITY</button>
-      <button data-panel="deploy">DEPLOYMENT CENTER</button>
-    </nav>
-
-    <div id="skynet-content"></div>
-
-    <footer class="skynet-footer">
-      SKYNET CYBER BLUE // OPERATIONAL CONTROL INTERFACE
-    </footer>
-  `;
-
-  const content = root.querySelector("#skynet-content");
-
-  const panels = {
-    command: `
-      <h2>◈ COMMAND CENTER</h2>
-      <p class="skynet-subtitle">Vista general de operaciones</p>
-      <div class="skynet-grid">
-        <article class="skynet-card radar-card">
-          <h3>CYBER RADAR</h3>
-          <div class="cyber-radar"><div class="radar-sweep"></div><span></span></div>
-          <p>Radar visual · Sin sensores externos conectados</p>
-        </article>
-        <article class="skynet-card">
-          <h3>CI/CD STATUS</h3>
-          <div class="big-value" id="ci-status">CONSULTANDO</div>
-          <p>GitHub Actions</p>
-          <a href="https://github.com/rodrodbeat-stack/UnderxKontroL/actions" target="_blank" rel="noopener noreferrer">ABRIR PIPELINES ↗</a>
-        </article>
-        <article class="skynet-card">
-          <h3>SECURITY CENTER</h3>
-          <div class="big-value">MONITOR</div>
-          <p>Los hallazgos requieren herramientas de análisis conectadas.</p>
-        </article>
-        <article class="skynet-card">
-          <h3>ENVIRONMENTS</h3>
-          <div class="environment-list">
-            <span>INTEGRACIÓN</span><span>CERTIFICACIÓN</span>
-            <span>QA</span><span>PRODUCCIÓN</span>
-          </div>
-          <p>Entornos definidos · Despliegues por verificar</p>
-        </article>
-      </div>
-      <article class="skynet-card">
-        <h3>LIVE PIPELINE FEED</h3>
-        <div id="skynet-runs">Consultando ejecuciones públicas...</div>
-      </article>
-    `,
-    cicd: `
-      <h2>◈ CI/CD OPERATIONS</h2>
-      <p class="skynet-subtitle">Flujo de entrega continua</p>
-      <div class="pipeline-flow">
-        ${["SOURCE","BUILD","TEST","SECURITY","QA","DEPLOY"].map((stage, i) =>
-          `<div class="pipeline-stage"><span>0${i + 1}</span><b>${stage}</b><small>ETAPA DEL PIPELINE</small></div>`
-        ).join('<div class="flow-arrow">➜</div>')}
-      </div>
-      <article class="skynet-card"><h3>EJECUCIONES REALES</h3><div id="skynet-runs">Consultando GitHub Actions...</div></article>
-      <a class="skynet-link" href="https://github.com/rodrodbeat-stack/UnderxKontroL/actions" target="_blank" rel="noopener noreferrer">ABRIR GITHUB ACTIONS ↗</a>
-    `,
-    security: `
-      <h2>◈ SECURITY OPERATIONS</h2>
-      <p class="skynet-subtitle">Centro de controles de seguridad</p>
-      <div class="skynet-grid">
-        <article class="skynet-card"><h3>SAST</h3><div class="big-value">PENDIENTE</div><p>Conectar analizador estático.</p></article>
-        <article class="skynet-card"><h3>DEPENDENCIES</h3><div class="big-value">PENDIENTE</div><p>Conectar análisis de dependencias.</p></article>
-        <article class="skynet-card"><h3>VULNERABILITIES</h3><div class="big-value">SIN DATOS</div><p>No hay resultados de escaneo conectados.</p></article>
-      </div>
-    `,
-    cloud: `
-      <h2>◈ CLOUD GOVERNANCE</h2>
-      <p class="skynet-subtitle">Gobernanza y postura cloud</p>
-      <div class="skynet-grid">
-        <article class="skynet-card"><h3>ASSET INVENTORY</h3><div class="big-value">SIN CONECTAR</div><p>Conectar proveedor cloud para inventario real.</p></article>
-        <article class="skynet-card"><h3>COMPLIANCE</h3><div class="big-value">SIN DATOS</div><p>Controles pendientes de integración.</p></article>
-        <article class="skynet-card"><h3>RISK CONTROL</h3><div class="big-value">EN ESPERA</div><p>No se muestran riesgos inventados.</p></article>
-      </div>
-    `,
-    environments: `
-      <h2>◈ ENVIRONMENT CONTROL</h2>
-      <p class="skynet-subtitle">Ruta de promoción entre entornos</p>
-      <div class="environment-flow">
-        ${["INTEGRACIÓN","CERTIFICACIÓN","QA","PRODUCCIÓN"].map((env, i) =>
-          `<article class="skynet-card"><span>ENV 0${i + 1}</span><h3>${env}</h3><p>${i === 3 ? "Requiere aprobación" : "Promoción pendiente de configurar"}</p></article>`
-        ).join('<div class="flow-arrow">➜</div>')}
-      </div>
-      <p class="skynet-note">Esta vista es informativa. Los controles de aprobación deben configurarse en GitHub Actions.</p>
-    `,
-    observability: `
-      <h2>◈ OBSERVABILITY</h2>
-      <p class="skynet-subtitle">Monitorización y telemetría</p>
-      <div class="skynet-grid">
-        <article class="skynet-card"><h3>METRICS</h3><div class="big-value">SIN CONECTAR</div><p>Integración con Prometheus pendiente.</p></article>
-        <article class="skynet-card"><h3>LOGS</h3><div class="big-value">SIN CONECTAR</div><p>Integración con un sistema de logs pendiente.</p></article>
-        <article class="skynet-card"><h3>ALERTS</h3><div class="big-value">SIN CONECTAR</div><p>Las alertas reales requieren una fuente de eventos.</p></article>
-      </div>
-    `,
-    deploy: `
-      <h2>◈ DEPLOYMENT CENTER</h2>
-      <p class="skynet-subtitle">Historial y seguimiento de publicaciones</p>
-      <article class="skynet-card"><h3>GITHUB PAGES</h3><p>Consulta el historial real de ejecuciones de despliegue.</p>
-        <a href="https://github.com/rodrodbeat-stack/UnderxKontroL/actions" target="_blank" rel="noopener noreferrer">VER HISTORIAL ↗</a>
-      </article>
-    `
+  const modules = {
+    command: {
+      title: "COMMAND CENTER",
+      subtitle: "CENTRO DE OPERACIONES",
+      description: "Vista general de la plataforma SKYNET."
+    },
+    cicd: {
+      title: "CI/CD OPERATIONS",
+      subtitle: "CONTINUOUS DELIVERY",
+      description: "Flujo de integración, pruebas, seguridad y despliegue."
+    },
+    security: {
+      title: "DEVSECOPS SECURITY",
+      subtitle: "SECURITY OPERATIONS",
+      description: "Controles de seguridad y gestión de vulnerabilidades."
+    },
+    cloud: {
+      title: "CLOUD GOVERNANCE",
+      subtitle: "MULTICLOUD CONTROL",
+      description: "Gobernanza para Azure, AWS y Google Cloud."
+    },
+    environments: {
+      title: "ENVIRONMENTS",
+      subtitle: "LIFECYCLE MANAGEMENT",
+      description: "Gestión visual del ciclo de vida de los entornos."
+    },
+    observability: {
+      title: "OBSERVABILITY",
+      subtitle: "MONITORING CENTER",
+      description: "Centro de monitorización y telemetría."
+    },
+    deploy: {
+      title: "DEPLOYMENT CENTER",
+      subtitle: "RELEASE CONTROL",
+      description: "Ejecuciones y publicaciones del repositorio."
+    }
   };
 
-  function showPanel(name) {
-    content.innerHTML = panels[name] || panels.command;
+  const stages = [
+    "DEVELOP",
+    "BUILD",
+    "TEST",
+    "SECURITY",
+    "CERT",
+    "QA",
+    "PRODUCTION"
+  ];
 
-    root.querySelectorAll(".skynet-nav button").forEach(button => {
-      button.classList.toggle("active", button.dataset.panel === name);
+  function createConsole() {
+    const root = document.getElementById("skynet-console");
+    if (!root) return;
+
+    root.innerHTML = `
+      <div class="skynet-shell">
+
+        <header class="sk-header">
+          <div class="sk-brand">
+            <div class="sk-logo">SK</div>
+            <div>
+              <h1>SKYNET <span>UnderxKontroL</span></h1>
+              <small>888 DIGITAL FACTORY // OPERATIONS</small>
+            </div>
+          </div>
+          <div class="sk-status">
+            <span class="sk-pulse"></span>
+            SYSTEM ONLINE
+          </div>
+        </header>
+
+        <div class="sk-layout">
+
+          <aside class="sk-sidebar">
+            <div class="sk-side-label">COMMAND MENU</div>
+
+            ${Object.entries(modules).map(([id, m]) => `
+              <button class="sk-nav ${id === "command" ? "active" : ""}"
+                data-module="${id}">
+                <span>${{
+                  command: "⌘",
+                  cicd: "⇄",
+                  security: "⬡",
+                  cloud: "☁",
+                  environments: "◈",
+                  observability: "◎",
+                  deploy: "🚀"
+                }[id]}</span>
+                ${m.title}
+              </button>
+            `).join("")}
+
+            <div class="sk-sidebar-foot">
+              <span class="sk-pulse"></span>
+              SECURE CONSOLE
+            </div>
+          </aside>
+
+          <main class="sk-main">
+
+            <div class="sk-page-heading">
+              <div>
+                <div class="sk-eyebrow" id="sk-subtitle">
+                  CENTRO DE OPERACIONES
+                </div>
+                <h2 id="sk-title">COMMAND CENTER</h2>
+                <p id="sk-description">
+                  Vista general de la plataforma SKYNET.
+                </p>
+              </div>
+              <div class="sk-clock" id="sk-clock">--:--:--</div>
+            </div>
+
+            <section id="sk-module-content"></section>
+
+            <footer class="sk-footer">
+              SKYNET // DEVSECOPS CONTROL PLANE
+              <span>GITHUB PAGES</span>
+            </footer>
+
+          </main>
+        </div>
+      </div>
+    `;
+
+    root.querySelectorAll("[data-module]").forEach(button => {
+      button.addEventListener("click", () => {
+        showModule(button.dataset.module);
+      });
+    });
+
+    showModule("command");
+    updateClock();
+    setInterval(updateClock, 1000);
+  }
+
+  function updateClock() {
+    const clock = document.getElementById("sk-clock");
+    if (clock) {
+      clock.textContent = new Date().toLocaleTimeString("es-CL", {
+        hour12: false
+      });
+    }
+  }
+
+  function showModule(id) {
+    const module = modules[id];
+    if (!module) return;
+
+    document.querySelectorAll("[data-module]").forEach(button => {
+      button.classList.toggle("active", button.dataset.module === id);
+    });
+
+    document.getElementById("sk-title").textContent = module.title;
+    document.getElementById("sk-subtitle").textContent = module.subtitle;
+    document.getElementById("sk-description").textContent =
+      module.description;
+
+    const content = document.getElementById("sk-module-content");
+
+    const views = {
+      command: commandView,
+      cicd: cicdView,
+      security: securityView,
+      cloud: cloudView,
+      environments: environmentsView,
+      observability: observabilityView,
+      deploy: deployView
+    };
+
+    content.innerHTML = views[id]();
+    bindActions(id);
+  }
+
+  function commandView() {
+    return `
+      <div class="sk-grid sk-grid-3">
+        ${metric("01", "CI/CD PIPELINE", "GITHUB ACTIONS", "LIVE")}
+        ${metric("02", "SECURITY", "CONTROLES", "DEMO")}
+        ${metric("03", "CLOUD", "MULTICLOUD", "DEMO")}
+      </div>
+
+      <div class="sk-grid sk-grid-2">
+        <article class="sk-panel">
+          <div class="sk-panel-title">◉ RADAR DE OPERACIONES</div>
+          <div class="sk-radar">
+            <div class="sk-radar-ring ring-one"></div>
+            <div class="sk-radar-ring ring-two"></div>
+            <div class="sk-radar-ring ring-three"></div>
+            <div class="sk-radar-cross"></div>
+            <div class="sk-radar-sweep"></div>
+            <div class="sk-radar-dot dot-one"></div>
+            <div class="sk-radar-dot dot-two"></div>
+            <div class="sk-radar-center">SK</div>
+          </div>
+          <div class="sk-note">
+            RADAR VISUAL · SIN TELEMETRÍA REAL
+          </div>
+        </article>
+
+        <article class="sk-panel">
+          <div class="sk-panel-title">▣ PIPELINE STATUS</div>
+          <div id="sk-latest-runs">Consultando GitHub Actions...</div>
+          <button class="sk-button" data-action="refresh">
+            ↻ ACTUALIZAR ESTADO
+          </button>
+          <a class="sk-button sk-link"
+            href="https://github.com/${REPO}/actions"
+            target="_blank" rel="noopener">
+            VER EJECUCIONES ↗
+          </a>
+        </article>
+      </div>
+
+      <article class="sk-panel">
+        <div class="sk-panel-title">▰ OPERATIONAL ENVIRONMENTS</div>
+        <div class="sk-environments">
+          ${environment("INTEGRACIÓN", "INT")}
+          ${environment("CERTIFICACIÓN", "CERT")}
+          ${environment("QA", "QA")}
+          ${environment("PRODUCCIÓN", "PROD")}
+        </div>
+        <div class="sk-note">
+          ENTORNOS REPRESENTADOS VISUALMENTE; NO INDICAN
+          EL ESTADO REAL DE INFRAESTRUCTURA.
+        </div>
+      </article>
+    `;
+  }
+
+  function cicdView() {
+    return `
+      <article class="sk-panel">
+        <div class="sk-panel-title">⇄ CONTINUOUS INTEGRATION / DELIVERY</div>
+        <div class="sk-pipeline">
+          ${stages.map((stage, index) => `
+            <div class="sk-stage">
+              <div class="sk-stage-node">${String(index + 1).padStart(2, "0")}</div>
+              <strong>${stage}</strong>
+              <small>${index === 0 ? "SOURCE" : "STAGE"}</small>
+            </div>
+            ${index < stages.length - 1
+              ? '<div class="sk-stage-line"></div>' : ""}
+          `).join("")}
+        </div>
+        <p class="sk-note">
+          Flujo ilustrativo. El resultado real de cada etapa
+          depende de los jobs configurados en GitHub Actions.
+        </p>
+        <a class="sk-button sk-link"
+          href="https://github.com/${REPO}/actions"
+          target="_blank" rel="noopener">
+          ABRIR PIPELINES REALES ↗
+        </a>
+      </article>
+
+      <article class="sk-panel">
+        <div class="sk-panel-title">ÚLTIMAS EJECUCIONES REALES</div>
+        <div id="sk-latest-runs">Consultando GitHub Actions...</div>
+        <button class="sk-button" data-action="refresh">
+          ↻ ACTUALIZAR
+        </button>
+      </article>
+    `;
+  }
+
+  function securityView() {
+    return `
+      <div class="sk-grid sk-grid-3">
+        ${metric("01", "VULNERABILITIES", "PENDIENTE DE CONEXIÓN", "DEMO")}
+        ${metric("02", "COMPLIANCE", "CONTROLES", "DEMO")}
+        ${metric("03", "POLICY STATUS", "GOBERNANZA", "DEMO")}
+      </div>
+      <article class="sk-panel">
+        <div class="sk-panel-title">⬡ SECURITY OPERATIONS</div>
+        <p>Área preparada para integrar resultados de análisis SAST,
+        dependencias, secretos, contenedores y configuración cloud.</p>
+        <div class="sk-note">
+          SIN ESCÁNERES CONECTADOS NO SE PUEDEN CONFIRMAR
+          VULNERABILIDADES NI NIVELES DE CUMPLIMIENTO.
+        </div>
+        <a class="sk-button sk-link"
+          href="https://github.com/${REPO}/security"
+          target="_blank" rel="noopener">
+          REVISAR SEGURIDAD EN GITHUB ↗
+        </a>
+      </article>
+    `;
+  }
+
+  function cloudView() {
+    return `
+      <div class="sk-grid sk-grid-3">
+        ${cloudCard("AZURE", "AZ")}
+        ${cloudCard("AWS", "AWS")}
+        ${cloudCard("GOOGLE CLOUD", "GCP")}
+      </div>
+      <article class="sk-panel">
+        <div class="sk-panel-title">CLOUD GOVERNANCE</div>
+        <p>Panel preparado para integrar inventario, políticas,
+        cumplimiento, IAM y configuración de recursos.</p>
+        <div class="sk-note">
+          DATOS CLOUD NO CONECTADOS · ESTADO REAL NO DISPONIBLE.
+        </div>
+      </article>
+    `;
+  }
+
+  function environmentsView() {
+    return `
+      <article class="sk-panel">
+        <div class="sk-panel-title">ENVIRONMENT LIFECYCLE</div>
+        <div class="sk-environments">
+          ${environment("INTEGRACIÓN", "INT")}
+          ${environment("CERTIFICACIÓN", "CERT")}
+          ${environment("QA", "QA")}
+          ${environment("PRODUCCIÓN", "PROD")}
+        </div>
+        <p class="sk-note">
+          Los entornos son representativos. No están conectados
+          a infraestructura ni autorizan despliegues.
+        </p>
+      </article>
+    `;
+  }
+
+  function observabilityView() {
+    return `
+      <div class="sk-grid sk-grid-3">
+        ${toolCard("GRAFANA", "http://localhost:3000")}
+        ${toolCard("PROMETHEUS", "http://localhost:9090")}
+        ${toolCard("KIBANA", "http://localhost:5601")}
+      </div>
+      <article class="sk-panel">
+        <div class="sk-panel-title">OBSERVABILITY CENTER</div>
+        <p>Los accesos localhost funcionan únicamente si esas
+        herramientas están desplegadas y accesibles desde tu dispositivo
+        o red. GitHub Pages no aloja estos servicios.</p>
+        <div class="sk-note">
+          MÉTRICAS, LOGS Y ALERTAS REALES: PENDIENTES DE CONEXIÓN.
+        </div>
+      </article>
+    `;
+  }
+
+  function deployView() {
+    return `
+      <article class="sk-panel">
+        <div class="sk-panel-title">DEPLOYMENT CONTROL</div>
+        <p>Consulta el historial de publicaciones y ejecuciones.</p>
+        <a class="sk-button sk-link"
+          href="https://github.com/${REPO}/actions"
+          target="_blank" rel="noopener">
+          VER GITHUB ACTIONS ↗
+        </a>
+        <a class="sk-button sk-link"
+          href="https://github.com/${REPO}/deployments"
+          target="_blank" rel="noopener">
+          VER DEPLOYMENTS ↗
+        </a>
+        <a class="sk-button sk-link"
+          href="https://github.com/${REPO}/commits/main"
+          target="_blank" rel="noopener">
+          VER COMMITS ↗
+        </a>
+      </article>
+      <article class="sk-panel">
+        <div class="sk-panel-title">LATEST PIPELINE RUNS</div>
+        <div id="sk-latest-runs">Consultando GitHub Actions...</div>
+        <button class="sk-button" data-action="refresh">
+          ↻ ACTUALIZAR
+        </button>
+      </article>
+    `;
+  }
+
+  function metric(number, title, subtitle, badge) {
+    return `
+      <article class="sk-metric">
+        <span class="sk-metric-number">${number}</span>
+        <strong>${title}</strong>
+        <small>${subtitle}</small>
+        <span class="sk-badge">${badge}</span>
+      </article>
+    `;
+  }
+
+  function environment(title, code) {
+    return `
+      <div class="sk-env-card">
+        <span>${code}</span>
+        <strong>${title}</strong>
+        <small>ESTADO NO CONECTADO</small>
+      </div>
+    `;
+  }
+
+  function cloudCard(title, code) {
+    return `
+      <article class="sk-metric">
+        <span class="sk-metric-number">${code}</span>
+        <strong>${title}</strong>
+        <small>PROVIDER</small>
+        <span class="sk-badge">DEMO</span>
+      </article>
+    `;
+  }
+
+  function toolCard(title, address) {
+    return `
+      <article class="sk-metric">
+        <span class="sk-metric-number">◎</span>
+        <strong>${title}</strong>
+        <small>ENDPOINT CONFIGURABLE</small>
+        <a class="sk-button sk-link"
+          href="${address}" target="_blank" rel="noopener">
+          ABRIR ↗
+        </a>
+      </article>
+    `;
+  }
+
+  function bindActions() {
+    document.querySelectorAll('[data-action="refresh"]').forEach(button => {
+      button.addEventListener("click", loadRuns);
     });
 
     loadRuns();
   }
 
   async function loadRuns() {
-    const targets = content.querySelectorAll("#skynet-runs");
-    if (!targets.length) return;
+    const containers = document.querySelectorAll("#sk-latest-runs");
+    if (!containers.length) return;
+
+    containers.forEach(el => {
+      el.textContent = "Consultando GitHub Actions...";
+    });
 
     try {
-      const response = await fetch(
-        "https://api.github.com/repos/rodrodbeat-stack/UnderxKontroL/actions/runs?per_page=5",
-        { headers: { Accept: "application/vnd.github+json" } }
-      );
+      const response = await fetch(`${API}/actions/runs?per_page=5`);
 
-      if (!response.ok) throw new Error("GitHub API HTTP " + response.status);
+      if (!response.ok) {
+        throw new Error("GitHub API no disponible");
+      }
 
       const data = await response.json();
 
-      const html = data.workflow_runs.map(run => {
-        const successful = run.status === "completed" && run.conclusion === "success";
-        const icon = run.status !== "completed" ? "◷" : successful ? "●" : "!";
-        const result = run.status !== "completed" ? run.status : run.conclusion || "unknown";
+      const html = data.workflow_runs.length
+        ? data.workflow_runs.map(run => {
+            const status = run.conclusion ||
+              (run.status === "in_progress" ? "EN EJECUCIÓN" : run.status);
 
-        return `<div class="run-row">
-          <span class="${successful ? "run-ok" : "run-other"}">${icon}</span>
-          <div><b>${escapeHTML(run.name)}</b>
-          <small>${escapeHTML(run.head_branch || "—")} · ${escapeHTML(result)}</small></div>
-          <a href="${run.html_url}" target="_blank" rel="noopener noreferrer">VER ↗</a>
-        </div>`;
-      }).join("") || "<p>No hay ejecuciones disponibles.</p>";
+            const safeStatus = String(status).replace(/_/g, " ").toUpperCase();
 
-      targets.forEach(target => target.innerHTML = html);
+            return `
+              <a class="sk-run"
+                href="${run.html_url}"
+                target="_blank" rel="noopener">
+                <span class="sk-run-dot ${run.conclusion === "success" ? "success" : ""}"></span>
+                <span>
+                  <strong>${escapeHTML(run.name)}</strong>
+                  <small>${escapeHTML(run.head_branch)} · ${escapeHTML(safeStatus)}</small>
+                </span>
+                <span>↗</span>
+              </a>
+            `;
+          }).join("")
+        : "<p>No hay ejecuciones disponibles.</p>";
 
-      const status = document.getElementById("ci-status");
-      if (status && data.workflow_runs.length) {
-        const latest = data.workflow_runs[0];
-        status.textContent = latest.status === "completed"
-          ? (latest.conclusion || "UNKNOWN").toUpperCase()
-          : latest.status.toUpperCase();
-      }
+      containers.forEach(el => {
+        el.innerHTML = html;
+      });
     } catch (error) {
-      targets.forEach(target => {
-        target.textContent = "No fue posible consultar GitHub Actions. Intenta nuevamente.";
+      containers.forEach(el => {
+        el.textContent =
+          "No se pudo consultar GitHub Actions. Revisa tu conexión.";
       });
     }
   }
 
   function escapeHTML(value) {
     return String(value).replace(/[&<>"']/g, char => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
     })[char]);
   }
 
-  root.querySelectorAll(".skynet-nav button").forEach(button => {
-    button.addEventListener("click", () => showPanel(button.dataset.panel));
-  });
-
-  showPanel("command");
-  setInterval(loadRuns, 60000);
-});
+  document.addEventListener("DOMContentLoaded", createConsole);
+})();
