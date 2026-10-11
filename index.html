@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#030914">
   <meta name="description" content="888DigitalFactory — Dashboard de gobernanza, seguridad cloud y despliegue CI/CD.">
-  <title>888DigitalFactory | Governance · Security · CI/CD</title>
+  <title>888DF | Governance · Security · CI/CD</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="js/skynet-dashboard.css">
 </head>
@@ -135,87 +135,7 @@
   </div>
   <div class="dash-modal" id="dash-modal" aria-hidden="true"><div class="dash-backdrop" data-close></div><section class="dash-window" role="dialog" aria-modal="true" aria-labelledby="dash-title"><header class="dash-head"><div><small>SKYNET // TACTICAL CONSOLE</small><h2 id="dash-title">DASHBOARD</h2><p id="dash-subtitle">Panel interactivo</p></div><button class="dash-close" type="button" aria-label="Cerrar">×</button></header><div class="dash-toolbar"><span>● SISTEMA EN LÍNEA</span><span id="dash-time">DEMO</span><button type="button" id="dash-refresh">↻ Actualizar</button></div><div id="dash-body" class="dash-body"></div><footer>SKYNET / SECURE OPERATIONS CENTER · DATOS ILUSTRATIVOS</footer></section></div>
 <script src="app.js"></script>
-  <!-- SKYNET CONTROL CENTER -->
-<section id="control-center" class="control-center">
-
-  <header class="cc-header">
-    <span class="cc-status"></span>
-    <div>
-      <h2>SKYNET CONTROL CENTER</h2>
-      <p>DEVSECOPS OPERATIONS // GITHUB ACTIONS</p>
-    </div>
-  </header>
-
-  <div class="cc-grid">
-
-    <article class="cc-card">
-      <span class="cc-icon">⚡</span>
-      <h3>CONTINUOUS INTEGRATION</h3>
-      <p>Pruebas y validaciones del código.</p>
-      <a class="cc-btn ci"
-         href="https://github.com/rodrodbeat-stack/UnderxKontroL/actions/workflows/cicd.yml"
-         target="_blank" rel="noopener">
-        ▶ RUN CI
-      </a>
-    </article>
-
-    <article class="cc-card">
-      <span class="cc-icon">🔄</span>
-      <h3>CONTINUOUS DELIVERY</h3>
-      <p>Build, test, seguridad e integración.</p>
-      <a class="cc-btn cicd"
-         href="https://github.com/rodrodbeat-stack/UnderxKontroL/actions/workflows/cicd.yml"
-         target="_blank" rel="noopener">
-        ▶ RUN CI/CD
-      </a>
-    </article>
-
-    <article class="cc-card">
-      <span class="cc-icon">🚀</span>
-      <h3>PRODUCTION DEPLOY</h3>
-      <p>Acceso al workflow de publicación.</p>
-      <a class="cc-btn deploy"
-         href="https://github.com/rodrodbeat-stack/UnderxKontroL/actions/workflows/cicd.yml"
-         target="_blank" rel="noopener">
-        ▶ DEPLOY
-      </a>
-    </article>
-
-  </div>
-
-  <div class="cc-monitor">
-    <h3>◉ PIPELINE MONITOR</h3>
-    <p>Consulta el estado real de las ejecuciones.</p>
-    <div class="github-live-header">
-  <span class="live-dot"></span>
-  <strong>GITHUB ACTIONS LIVE</strong>
-  <button id="refresh-github-runs" type="button">
-    ↻ ACTUALIZAR
-  </button>
-</div>
-
-<div id="github-actions-live" aria-live="polite">
-  <p>Conectando con GitHub Actions...</p>
-</div>
-
-    <a href="https://github.com/rodrodbeat-stack/UnderxKontroL/actions"
-       target="_blank" rel="noopener">
-      📡 VIEW EXECUTIONS
-    </a>
-
-    <a href="https://github.com/rodrodbeat-stack/UnderxKontroL/commits/main"
-       target="_blank" rel="noopener">
-      📜 VIEW COMMITS
-    </a>
-  </div>
-  <section id="pipeline-monitor">
-  <h2>SKYNET | Pipeline Monitor</h2>
-  <p>Monitorización de ejecuciones de GitHub Actions</p>
-
-  <div id="github-actions">
-    <p>Cargando información...</p>
-  </div>
-</section>
+  
 
 <script src="js/github-monitor.js" defer></script>
 
