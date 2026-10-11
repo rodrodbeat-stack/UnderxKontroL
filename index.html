@@ -1,146 +1,643 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#030914">
-  <meta name="description" content="888DigitalFactory — Dashboard de gobernanza, seguridad cloud y despliegue CI/CD.">
-  <title>888DF | Governance · Security · CI/CD</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="js/skynet-dashboard.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKYNET CONTROL CENTER</title>
+
+<style>
+:root {
+  --bg: #050b12;
+  --panel: #0b1722;
+  --cyan: #00e5ff;
+  --green: #00ff9c;
+  --red: #ff4567;
+  --yellow: #ffcc66;
+  --text: #d8e9f2;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #102638, var(--bg) 60%);
+  color: var(--text);
+  font-family: Consolas, "Courier New", monospace;
+}
+
+header {
+  padding: 24px;
+  border-bottom: 1px solid var(--cyan);
+  background: #06101aeF;
+  box-shadow: 0 0 20px #00e5ff20;
+}
+
+h1 {
+  color: var(--cyan);
+  letter-spacing: 4px;
+  margin: 0 0 8px;
+  text-shadow: 0 0 12px #00e5ff80;
+}
+
+.subtitle {
+  color: #8ca9b9;
+  font-size: 12px;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 24px;
+  border-bottom: 1px solid #193647;
+}
+
+button {
+  background: #0b1c29;
+  color: var(--cyan);
+  border: 1px solid #176079;
+  padding: 10px 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: .2s;
+}
+
+button:hover, button.active {
+  background: #063345;
+  box-shadow: 0 0 12px #00e5ff40;
+  border-color: var(--cyan);
+}
+
+main { padding: 22px; }
+
+.statusbar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: var(--green);
+  font-size: 12px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.panel {
+  background: linear-gradient(145deg, #0c1b28, #07111a);
+  border: 1px solid #183849;
+  padding: 18px;
+  min-width: 0;
+  box-shadow: inset 0 0 20px #00e5ff05;
+}
+
+.panel h2 {
+  color: var(--cyan);
+  font-size: 14px;
+  letter-spacing: 2px;
+  margin-top: 0;
+}
+
+.span3 { grid-column: span 3; }
+.span4 { grid-column: span 4; }
+.span5 { grid-column: span 5; }
+.span6 { grid-column: span 6; }
+.span7 { grid-column: span 7; }
+.span8 { grid-column: span 8; }
+.span12 { grid-column: span 12; }
+
+.metric {
+  font-size: 30px;
+  font-weight: bold;
+  margin: 12px 0 5px;
+  color: var(--green);
+}
+
+.muted { color: #7895a5; font-size: 12px; }
+.good { color: var(--green); }
+.warn { color: var(--yellow); }
+.bad { color: var(--red); }
+
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.stage {
+  flex: 1;
+  min-width: 110px;
+  text-align: center;
+  padding: 15px 8px;
+  background: #07141e;
+  border: 1px solid #1b5264;
+}
+
+.stage span {
+  display: block;
+  font-size: 11px;
+  margin-top: 8px;
+}
+
+.arrow { color: var(--cyan); }
+
+canvas {
+  width: 100%;
+  height: 220px;
+  display: block;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th, td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #193342;
+}
+
+th { color: var(--cyan); }
+
+.progress {
+  background: #152a36;
+  height: 7px;
+  margin-top: 10px;
+}
+
+.progress div {
+  height: 100%;
+  background: var(--green);
+}
+
+.log {
+  height: 180px;
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #9db7c5;
+}
+
+.log .time { color: var(--cyan); }
+
+.radar-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
+.radar {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  border: 1px solid var(--green);
+  background:
+    linear-gradient(90deg, transparent 49.5%, #00ff9c45 50%, transparent 50.5%),
+    linear-gradient(transparent 49.5%, #00ff9c45 50%, transparent 50.5%),
+    repeating-radial-gradient(circle, transparent 0 27px, #00ff9c35 28px 29px),
+    #04150f;
+  position: relative;
+  overflow: hidden;
+}
+
+.radar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from 0deg, transparent 70%, #00ff9c55);
+  animation: sweep 4s linear infinite;
+}
+
+@keyframes sweep { to { transform: rotate(360deg); } }
+
+footer {
+  padding: 24px;
+  text-align: center;
+  border-top: 1px solid #193647;
+  color: #587786;
+  font-size: 11px;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+@media (max-width: 800px) {
+  .span3, .span4, .span5, .span6, .span7, .span8 {
+    grid-column: span 12;
+  }
+  h1 { font-size: 22px; }
+  main { padding: 12px; }
+}
+</style>
 </head>
+
 <body>
-  <div class="scanlines" aria-hidden="true"></div>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <a class="brand" href="#" aria-label="SKYNET inicio">
-        <span class="brand-mark">▲</span>
-        <span><strong>888DigitalFactory</strong><small>GOVERNANCE · SECURITY · CI/CD</small></span>
-      </a>
-      <nav class="nav-menu" aria-label="Navegación principal">
-        <button class="nav-item active" data-section="overview">⌂ <span>Inicio</span></button>
-        <button class="nav-item" data-section="governance">⬡ <span>Gobernanza</span></button>
-        <button class="nav-item" data-section="security">▣ <span>Seguridad</span></button>
-        <button class="nav-item" data-section="pipeline">∞ <span>CI/CD</span></button>
-        <button class="nav-item" data-section="environments">☁ <span>Infraestructura</span></button>
-        <button class="nav-item" data-section="kubernetes">⬢ <span>Kubernetes</span></button>
-        <button class="nav-item" data-section="observability">⌁ <span>Monitoreo</span></button>
-        <button class="nav-item" data-section="reports">▤ <span>Reportes</span></button>
-        <button class="nav-item" data-section="settings">⚙ <span>Configuración</span></button>
-      </nav>
-      <div class="side-visual">
-        <div class="robot-eye">◉</div>
-        <div class="robot-label">SISTEMA DE DEFENSA<br><b>ACTIVO</b></div>
-      </div>
-      <p class="side-quote">EL FUTURO DE LA NUBE<br>ES SEGURO, AUTOMATIZADO<br>Y OBSERVABLE.</p>
-      <div class="sidebar-foot">NODE STATUS <span class="pulse-dot"></span> ONLINE</div>
-    </aside>
 
-    <main class="main-content">
-      <header class="topbar">
-        <div class="breadcrumb"><span class="muted">COMMAND CENTER</span><span class="slash">/</span><b id="section-title">VISIÓN GENERAL</b></div>
-        <div class="top-status"><span class="live-dot"></span> SYSTEM ONLINE <span class="divider">|</span> SKYNET v3.0 <span class="divider">|</span><span id="clock">--:--:--</span></div>
-      </header>
+<header>
+  <h1>SKYNET CONTROL CENTER</h1>
+  <div class="subtitle">DEVSECOPS OPERATIONS // SECURITY // OBSERVABILITY</div>
+</header>
 
-      <section class="hero-row" id="overview">
-        <article class="panel governance-panel" id="governance">
-          <div class="panel-heading"><span class="icon-shield">⬡</span><div><h2>GOBERNANZA</h2><p>Políticas · Cumplimiento · Riesgos · Accesos</p></div></div>
-          <div class="governance-grid">
-            <div class="compliance-card">
-              <div class="big-check">✓</div><div class="metric-label">Cumplimiento</div><div class="big-number">98<span>%</span></div>
-              <div class="progress"><i style="width:98%"></i></div>
-              <ul class="check-list"><li>Políticas de acceso (IAM)</li><li>Control de cambios</li><li>Gestión de identidades</li><li>Auditoría y trazabilidad</li></ul>
-            </div>
-            <div class="risk-card"><div class="metric-label">Riesgos identificados</div>
-              <div class="risk-row red"><span>▲</span><div><small>Críticos</small><b>2</b></div></div>
-              <div class="risk-row orange"><span>▲</span><div><small>Altos</small><b>5</b></div></div>
-              <div class="risk-row yellow"><span>▲</span><div><small>Medios</small><b>12</b></div></div>
-              <div class="risk-row green"><span>◆</span><div><small>Bajos</small><b>34</b></div></div>
-            </div>
-          </div>
-        </article>
+<nav>
+  <button class="active" data-page="overview">CENTRO DE CONTROL</button>
+  <button data-page="pipeline">CI/CD PIPELINE</button>
+  <button data-page="security">SEGURIDAD</button>
+  <button data-page="observability">OBSERVABILIDAD</button>
+  <button data-page="infrastructure">INFRAESTRUCTURA</button>
+</nav>
 
-        <article class="panel threat-panel">
-          <div class="globe-wrap"><div class="globe"><div class="globe-lines"></div><span class="globe-point p1"></span><span class="globe-point p2"></span><span class="globe-point p3"></span></div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div></div>
-          <div class="global-monitor"><h3>MONITOREO GLOBAL</h3><p>⌘ &nbsp; Cloud (GCP / AWS / Azure)</p><p>⌘ &nbsp; Redes</p><p>⌘ &nbsp; Aplicaciones</p><p>⌘ &nbsp; Usuarios</p><p>⌘ &nbsp; Datos</p></div>
-          <div class="threat-counter"><span>AMENAZAS DETECTADAS</span><b id="threat-count">03</b></div>
-        </article>
-
-        <article class="panel security-panel" id="security">
-          <div class="panel-heading"><span class="icon-lock">▣</span><div><h2>SEGURIDAD</h2><p>Vulnerabilidades · Amenazas · Protección</p></div></div>
-          <div class="security-summary"><div class="donut"><div><strong>97%</strong><small>Estado de<br>seguridad</small></div></div>
-            <div class="security-stats"><div><span class="red-text">◉</span><div><small>Vulnerabilidades abiertas</small><b>7 <em>(2 críticas)</em></b></div></div><div><span class="green-text">✓</span><div><small>Escaneos de seguridad</small><b class="green-text">Completados</b></div></div><div><span>◷</span><div><small>Último escaneo</small><b>Hoy 14:21</b></div></div></div>
-          </div>
-          <div class="chart-heading">Intentos de intrusión (24h) <span class="blocked">Bloqueados 38</span></div>
-          <div class="mini-chart" aria-label="Gráfico ilustrativo de intentos de intrusión"><div class="chart-y"><span>40</span><span>30</span><span>20</span><span>10</span><span>0</span></div><svg viewBox="0 0 420 88" preserveAspectRatio="none" role="img" aria-label="Tendencia de intentos de intrusión"><path class="chart-area" d="M0 70 L12 62 22 68 34 56 46 61 58 49 69 63 80 30 92 55 104 62 116 47 128 60 140 26 152 54 164 61 176 43 188 59 200 52 212 20 224 48 236 60 248 50 260 57 272 34 284 60 296 52 308 45 320 58 332 25 344 51 356 60 368 44 380 55 392 36 408 55 420 45 L420 88 L0 88 Z"/><path class="chart-line" d="M0 70 L12 62 22 68 34 56 46 61 58 49 69 63 80 30 92 55 104 62 116 47 128 60 140 26 152 54 164 61 176 43 188 59 200 52 212 20 224 48 236 60 248 50 260 57 272 34 284 60 296 52 308 45 320 58 332 25 344 51 356 60 368 44 380 55 392 36 408 55 420 45"/></svg></div>
-        </article>
-      </section>
-
-      <section class="panel pipeline-panel" id="pipeline">
-        <div class="pipeline-head"><div class="panel-heading"><span class="pipeline-icon">‹/›</span><div><h2>CI/CD · FLUJO DE DEPLOY</h2><p>Desde el commit hasta producción con controles de seguridad</p></div></div><div class="deploy-status"><span>Último deploy: <b>2026-10-10 02:48</b></span><strong>✓ EXITOSO</strong></div></div>
-        <div class="pipeline-flow" id="pipeline-flow">
-          <button class="stage" data-stage="CODE"><span class="stage-icon">&lt;/&gt;</span><b>CODE</b><small>Commit</small><i>✓</i></button><span class="flow-arrow">➜</span>
-          <button class="stage" data-stage="BUILD"><span class="stage-icon">⚙</span><b>BUILD</b><small>Compilación</small><i>✓</i></button><span class="flow-arrow">➜</span>
-          <button class="stage" data-stage="TEST"><span class="stage-icon">⚗</span><b>TEST</b><small>Unit & Integration</small><i>✓</i></button><span class="flow-arrow">➜</span>
-          <button class="stage" data-stage="SECURITY"><span class="stage-icon">⬡</span><b>SECURITY</b><small>SAST / DAST / SCA</small><i>✓</i></button><span class="flow-arrow">➜</span>
-          <button class="stage" data-stage="INTEGRACIÓN"><span class="stage-icon">⬡</span><b>INTEGRACIÓN</b><small>Deploy Dev</small><i>✓</i></button><span class="flow-arrow">➜</span>
-          <button class="stage" data-stage="CERTIFICACIÓN"><span class="stage-icon">✺</span><b>CERTIFICACIÓN</b><small>Validación</small><i>✓</i></button><span class="flow-arrow">➜</span>
-          <button class="stage" data-stage="QA"><span class="stage-icon">◈</span><b>QA</b><small>Pruebas E2E</small><i>✓</i></button><span class="flow-arrow">➜</span>
-          <button class="stage" data-stage="PRODUCCIÓN"><span class="stage-icon">➤</span><b>PRODUCCIÓN</b><small>Deploy Prod</small><i>✓</i></button>
-        </div>
-        <div class="stage-detail" id="stage-detail"><b>SELECCIONA UNA ETAPA</b><span>Haz clic en una fase para consultar sus controles y resultados.</span></div>
-      </section>
-            <section class="panel pipeline-panel" id="pipeline">
-
-        <!-- Aquí se mantiene tu flujo CI/CD actual -->
-        
-      </section>
-
-      
-      <!-- Después continúa el resto del HTML original -->
-
-      <section class="lower-grid">
-        <article class="panel pipelines-table" id="reports"><div class="section-heading"><h2>▣ PIPELINES RECIENTES</h2><button class="text-button" id="refresh-pipelines">↻ Actualizar</button></div>
-          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Proyecto</th><th>Branch</th><th>Estado</th><th>Tiempo</th><th>Fecha</th></tr></thead><tbody id="pipeline-rows">
-            <tr><td>#4827</td><td>web-app</td><td>main</td><td><span class="badge success">● Exitoso</span></td><td>6m 32s</td><td>10-10 02:48</td></tr>
-            <tr><td>#4826</td><td>api-service</td><td>develop</td><td><span class="badge success">● Exitoso</span></td><td>8m 17s</td><td>10-10 02:41</td></tr>
-            <tr><td>#4825</td><td>frontend</td><td>main</td><td><span class="badge failed">▲ Fallido</span></td><td>4m 52s</td><td>10-10 02:32</td></tr>
-            <tr><td>#4824</td><td>infra</td><td>main</td><td><span class="badge success">● Exitoso</span></td><td>10m 11s</td><td>10-10 02:18</td></tr>
-            <tr><td>#4823</td><td>backend</td><td>feature/login</td><td><span class="badge success">● Exitoso</span></td><td>7m 03s</td><td>10-10 02:05</td></tr>
-          </tbody></table></div><div class="table-foot"><span id="pipeline-message">Mostrando 5 pipelines recientes</span><button class="text-button" id="view-all">Ver todos los pipelines →</button></div>
-        </article>
-
-        <article class="panel environments-panel" id="environments"><div class="section-heading"><h2>▣ ENTORNOS</h2><span class="muted">4 ACTIVOS</span></div>
-          <div class="environment-list">
-            <button class="environment" data-env="INTEGRACIÓN"><span class="env-icon">⬡</span><span class="env-name"><b>INTEGRACIÓN</b><small>v1.2.3 · Deploy Dev</small></span><span class="env-health"><b>● Salud: 100%</b><small>Último deploy: 02:15</small></span><span class="chevron">›</span></button>
-            <button class="environment" data-env="CERTIFICACIÓN"><span class="env-icon">⬢</span><span class="env-name"><b>CERTIFICACIÓN</b><small>v1.2.3 · Preproducción</small></span><span class="env-health"><b>● Salud: 100%</b><small>Último deploy: 01:42</small></span><span class="chevron">›</span></button>
-            <button class="environment" data-env="QA"><span class="env-icon">▣</span><span class="env-name"><b>QA</b><small>v1.2.3 · Pruebas E2E</small></span><span class="env-health"><b>● Salud: 99%</b><small>Último deploy: 01:28</small></span><span class="chevron">›</span></button>
-            <button class="environment" data-env="PRODUCCIÓN"><span class="env-icon">➤</span><span class="env-name"><b>PRODUCCIÓN</b><small>v1.2.3 · Live</small></span><span class="env-health"><b>● Salud: 100%</b><small>Último deploy: 02:48</small></span><span class="chevron">›</span></button>
-          </div><div class="env-detail" id="env-detail">Selecciona un entorno para ver su estado.</div>
-        </article>
-
-        <article class="panel observability-panel" id="observability"><div class="section-heading"><h2>⌁ OBSERVABILIDAD</h2><span class="live-label"><i></i> LIVE</span></div>
-          <div class="tabs" role="tablist"><button class="tab active" data-metric="metrics">Métricas</button><button class="tab" data-metric="logs">Logs</button><button class="tab" data-metric="traces">Traces</button></div>
-          <div id="observability-content" class="obs-content">
-            <div class="metric-tile"><span class="metric-icon">◉</span><div><small>CPU</small><b>32%</b><div class="spark"><i style="height:20%"></i><i style="height:40%"></i><i style="height:30%"></i><i style="height:55%"></i><i style="height:35%"></i><i style="height:70%"></i><i style="height:48%"></i><i style="height:80%"></i></div></div></div>
-            <div class="metric-tile"><span class="metric-icon">▣</span><div><small>Memoria</small><b>68%</b><div class="spark blue"><i style="height:30%"></i><i style="height:45%"></i><i style="height:35%"></i><i style="height:60%"></i><i style="height:52%"></i><i style="height:75%"></i><i style="height:58%"></i><i style="height:65%"></i></div></div></div>
-            <div class="metric-tile"><span class="metric-icon">⌁</span><div><small>Red</small><b>1.2 Gbps</b><div class="spark blue"><i style="height:15%"></i><i style="height:35%"></i><i style="height:25%"></i><i style="height:48%"></i><i style="height:60%"></i><i style="height:40%"></i><i style="height:72%"></i><i style="height:85%"></i></div></div></div>
-            <div class="metric-tile"><span class="metric-icon">▤</span><div><small>Disco</small><b>45%</b><div class="spark"><i style="height:20%"></i><i style="height:25%"></i><i style="height:35%"></i><i style="height:40%"></i><i style="height:50%"></i><i style="height:42%"></i><i style="height:60%"></i><i style="height:55%"></i></div></div></div>
-          </div>
-        </article>
-      </section>
-      <footer class="footer"><strong>SKYNET</strong><span>SUPERVISIÓN</span><span>PREVENCIÓN</span><span>RESPUESTA</span><span>EVOLUCIÓN</span><p>NO ES SOLO UNA PLATAFORMA… ES TU ALIADO ESTRATÉGICO.</p></footer>
-      <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    </main>
+<main>
+  <div class="statusbar">
+    <span>● SISTEMA OPERATIVO: NORMAL</span>
+    <span id="clock">--:--:--</span>
+    <span>MODE: SIMULACIÓN</span>
   </div>
-  <div class="dash-modal" id="dash-modal" aria-hidden="true"><div class="dash-backdrop" data-close></div><section class="dash-window" role="dialog" aria-modal="true" aria-labelledby="dash-title"><header class="dash-head"><div><small>SKYNET // TACTICAL CONSOLE</small><h2 id="dash-title">DASHBOARD</h2><p id="dash-subtitle">Panel interactivo</p></div><button class="dash-close" type="button" aria-label="Cerrar">×</button></header><div class="dash-toolbar"><span>● SISTEMA EN LÍNEA</span><span id="dash-time">DEMO</span><button type="button" id="dash-refresh">↻ Actualizar</button></div><div id="dash-body" class="dash-body"></div><footer>SKYNET / SECURE OPERATIONS CENTER · DATOS ILUSTRATIVOS</footer></section></div>
-<script src="app.js"></script>
-  
 
-<script src="js/github-monitor.js" defer></script>
+  <!-- CENTRO DE CONTROL -->
+  <section class="page active" id="overview">
+    <div class="grid">
+      <article class="panel span3">
+        <h2>PIPELINE STATUS</h2>
+        <div class="metric">96.8%</div>
+        <div class="muted">Éxito simulado de ejecuciones</div>
+      </article>
 
-</section>
-  <div id="skynet-console"></div>
-<script src="js/skynet-dashboard.js" defer></script>
+      <article class="panel span3">
+        <h2>VULNERABILIDADES</h2>
+        <div class="metric warn" id="vulnCount">12</div>
+        <div class="muted">Hallazgos simulados</div>
+      </article>
+
+      <article class="panel span3">
+        <h2>SERVIDORES</h2>
+        <div class="metric">08/08</div>
+        <div class="muted">Nodos representados</div>
+      </article>
+
+      <article class="panel span3">
+        <h2>LATENCIA</h2>
+        <div class="metric" id="latency">42 ms</div>
+        <div class="muted">Valor de demostración</div>
+      </article>
+
+      <article class="panel span7">
+        <h2>FLUJO DEVSECOPS</h2>
+        <div class="pipeline">
+          <div class="stage">01 · CODE<span class="good">● COMPLETADO</span></div>
+          <div class="arrow">➜</div>
+          <div class="stage">02 · BUILD<span class="good">● COMPLETADO</span></div>
+          <div class="arrow">➜</div>
+          <div class="stage">03 · SECURITY<span class="warn">● REVISIÓN</span></div>
+        </div>
+        <div class="pipeline">
+          <div class="stage">04 · INTEGRACIÓN<span class="good">● OK</span></div>
+          <div class="arrow">➜</div>
+          <div class="stage">05 · CERTIFICACIÓN<span class="good">● OK</span></div>
+          <div class="arrow">➜</div>
+          <div class="stage">06 · QA<span class="good">● OK</span></div>
+          <div class="arrow">➜</div>
+          <div class="stage">07 · PRODUCCIÓN<span class="warn">● CONTROL</span></div>
+        </div>
+        <button onclick="runPipeline()">▶ SIMULAR PIPELINE</button>
+        <p class="muted" id="pipelineMessage">Esperando acción del operador.</p>
+      </article>
+
+      <article class="panel span5">
+        <h2>RADAR DE OPERACIONES</h2>
+        <div class="radar-wrap"><div class="radar"></div></div>
+        <div class="muted">Radar visual de demostración. No detecta amenazas reales.</div>
+      </article>
+
+      <article class="panel span6">
+        <h2>RECURSOS DEL SISTEMA</h2>
+        <p>CPU <span id="cpuText">38%</span></p>
+        <div class="progress"><div id="cpuBar" style="width:38%"></div></div>
+        <p>MEMORIA <span id="memText">64%</span></p>
+        <div class="progress"><div id="memBar" style="width:64%"></div></div>
+        <p>ALMACENAMIENTO <span id="diskText">51%</span></p>
+        <div class="progress"><div id="diskBar" style="width:51%"></div></div>
+      </article>
+
+      <article class="panel span6">
+        <h2>EVENTOS DEL SISTEMA</h2>
+        <div class="log" id="eventLog">
+          <div><span class="time">[BOOT]</span> Centro de control iniciado.</div>
+          <div><span class="time">[INFO]</span> Modo de simulación activo.</div>
+          <div><span class="time">[SEC]</span> Esperando análisis de seguridad.</div>
+          <div><span class="time">[OPS]</span> Monitor visual disponible.</div>
+        </div>
+        <button onclick="addEvent()">+ GENERAR EVENTO</button>
+      </article>
+    </div>
+  </section>
+
+  <!-- PIPELINE -->
+  <section class="page" id="pipeline">
+    <div class="grid">
+      <article class="panel span12">
+        <h2>CI/CD DEPLOYMENT ORCHESTRATOR</h2>
+        <p>Flujo de referencia: código → pruebas → seguridad → QA → producción.</p>
+        <div class="pipeline">
+          <div class="stage">SOURCE<span>Git</span></div>
+          <div class="arrow">➜</div>
+          <div class="stage">TEST<span>Unit / Integration</span></div>
+          <div class="arrow">➜</div>
+          <div class="stage">SAST / SCA<span>Security Scan</span></div>
+          <div class="arrow">➜</div>
+          <div class="stage">CERTIFICACIÓN<span>Quality Gate</span></div>
+          <div class="arrow">➜</div>
+          <div class="stage">QA<span>Validation</span></div>
+          <div class="arrow">➜</div>
+          <div class="stage">PROD<span>Approval</span></div>
+        </div>
+        <button onclick="runPipeline()">▶ EJECUTAR SIMULACIÓN</button>
+        <p id="pipelineDetail" class="muted">No se ha ejecutado ninguna simulación.</p>
+      </article>
+
+      <article class="panel span6">
+        <h2>CONTROLES DE RELEASE</h2>
+        <p>✓ Validación de código</p>
+        <p>✓ Pruebas automatizadas</p>
+        <p>✓ Análisis de dependencias</p>
+        <p>✓ Aprobación antes de producción</p>
+        <p class="warn">Demo visual: no ejecuta despliegues reales.</p>
+      </article>
+
+      <article class="panel span6">
+        <h2>ÚLTIMO DESPLIEGUE</h2>
+        <div class="metric" style="font-size:22px">DEMO-001</div>
+        <p>Branch: main</p>
+        <p>Environment: QA</p>
+        <p>Status: <span class="good">SIMULADO</span></p>
+      </article>
+    </div>
+  </section>
+
+  <!-- SEGURIDAD -->
+  <section class="page" id="security">
+    <div class="grid">
+      <article class="panel span4">
+        <h2>CRITICAL</h2>
+        <div class="metric bad">02</div>
+        <div class="muted">Datos de ejemplo</div>
+      </article>
+      <article class="panel span4">
+        <h2>HIGH</h2>
+        <div class="metric warn">04</div>
+        <div class="muted">Datos de ejemplo</div>
+      </article>
+      <article class="panel span4">
+        <h2>MEDIUM / LOW</h2>
+        <div class="metric">06</div>
+        <div class="muted">Datos de ejemplo</div>
+      </article>
+
+      <article class="panel span12">
+        <h2>SECURITY FINDINGS</h2>
+        <table>
+          <thead>
+            <tr><th>CONTROL</th><th>TIPO</th><th>SEVERIDAD</th><th>ESTADO</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Dependency Scan</td><td>SCA</td><td class="bad">CRITICAL</td><td>Open · Demo</td></tr>
+            <tr><td>Source Analysis</td><td>SAST</td><td class="warn">HIGH</td><td>Review · Demo</td></tr>
+            <tr><td>Container Image</td><td>Image Scan</td><td class="warn">HIGH</td><td>Review · Demo</td></tr>
+            <tr><td>Infrastructure as Code</td><td>IaC Scan</td><td class="good">LOW</td><td>Tracked · Demo</td></tr>
+          </tbody>
+        </table>
+        <br>
+        <button onclick="securityScan()">▶ SIMULAR SECURITY SCAN</button>
+        <p id="securityMessage" class="muted">Los hallazgos no provienen de un escaneo real.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- OBSERVABILIDAD -->
+  <section class="page" id="observability">
+    <div class="grid">
+      <article class="panel span6">
+        <h2>CPU UTILIZATION · %</h2>
+        <canvas id="cpuChart"></canvas>
+      </article>
+      <article class="panel span6">
+        <h2>MEMORY UTILIZATION · %</h2>
+        <canvas id="memChart"></canvas>
+      </article>
+      <article class="panel span6">
+        <h2>REQUEST LATENCY · ms</h2>
+        <canvas id="latChart"></canvas>
+      </article>
+      <article class="panel span6">
+        <h2>NETWORK TRAFFIC · MB/s</h2>
+        <canvas id="netChart"></canvas>
+      </article>
+      <article class="panel span12">
+        <h2>OBSERVABILITY STATUS</h2>
+        <p>Prometheus: <span class="warn">NO CONECTADO · DEMO</span></p>
+        <p>Grafana: <span class="warn">NO CONECTADO · DEMO</span></p>
+        <p>Alertmanager: <span class="warn">NO CONECTADO · DEMO</span></p>
+        <button onclick="refreshCharts()">↻ ACTUALIZAR GRÁFICOS</button>
+        <p class="muted">Los gráficos usan valores aleatorios generados en el navegador; no son métricas de servidores reales.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- INFRAESTRUCTURA -->
+  <section class="page" id="infrastructure">
+    <div class="grid">
+      <article class="panel span12">
+        <h2>INFRASTRUCTURE INVENTORY</h2>
+        <table>
+          <thead>
+            <tr><th>NODO</th><th>ROL</th><th>ESTADO</th><th>CPU</th><th>AMBIENTE</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>SRV-001</td><td>Application</td><td class="good">SIMULADO OK</td><td>32%</td><td>Integración</td></tr>
+            <tr><td>SRV-002</td><td>Database</td><td class="good">SIMULADO OK</td><td>47%</td><td>Certificación</td></tr>
+            <tr><td>SRV-003</td><td>QA Worker</td><td class="good">SIMULADO OK</td><td>28%</td><td>QA</td></tr>
+            <tr><td>SRV-004</td><td>Production</td><td class="warn">CONTROLADO</td><td>51%</td><td>Producción</td></tr>
+          </tbody>
+        </table>
+        <br>
+        <button onclick="addEvent('Inventario de infraestructura consultado.')">CONSULTAR INVENTARIO</button>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  SKYNET CONTROL CENTER // DEVSECOPS LAB // SIMULACIÓN LOCAL
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+document.querySelectorAll("nav button").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    button.classList.add("active");
+    $(button.dataset.page).classList.add("active");
+
+    if (button.dataset.page === "observability") {
+      drawAllCharts();
+    }
+  });
+});
+
+function updateClock() {
+  $("clock").textContent = new Date().toLocaleString("es-CL");
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function addEvent(message) {
+  const messages = [
+    "Se ha generado un evento de monitorización.",
+    "Verificación de estado completada en modo demo.",
+    "Control de seguridad actualizado.",
+    "Solicitud de observabilidad procesada."
+  ];
+  const log = $("eventLog");
+  const row = document.createElement("div");
+  const time = document.createElement("span");
+  time.className = "time";
+  time.textContent = "[" + new Date().toLocaleTimeString("es-CL") + "] ";
+  row.append(time, document.createTextNode(message || messages[Math.floor(Math.random() * messages.length)]));
+  log.prepend(row);
+}
+
+function runPipeline() {
+  const stages = ["CODE", "BUILD", "TEST", "SECURITY SCAN", "INTEGRACIÓN", "CERTIFICACIÓN", "QA", "PRODUCCIÓN"];
+  let index = 0;
+  $("pipelineMessage").textContent = "Simulación iniciada...";
+  $("pipelineDetail").textContent = "Ejecutando etapas de demostración...";
+  addEvent("Simulación de pipeline iniciada.");
+
+  const timer = setInterval(() => {
+    const stage = stages[index];
+    $("pipelineMessage").textContent = "Etapa " + (index + 1) + "/" + stages.length + ": " + stage;
+    $("pipelineDetail").textContent = "Procesando " + stage + " — simulación visual.";
+    addEvent("Pipeline demo: " + stage);
+    index++;
+
+    if (index >= stages.length) {
+      clearInterval(timer);
+      $("pipelineMessage").textContent = "✓ Simulación completada. No se realizó ningún despliegue real.";
+      $("pipelineDetail").textContent = "Demo completada. Para desplegar de verdad hay que integrar CI/CD.";
+      addEvent("Simulación de pipeline finalizada.");
+    }
+  }, 700);
+}
+
+function securityScan() {
+  $("securityMessage").textContent = "Analizando controles de ejemplo...";
+  setTimeout(() => {
+    $("securityMessage").textContent =
+      "Simulación completada: 2 críticos, 4 altos y 6 medios/bajos. No son resultados reales.";
+    addEvent("Security scan simulado completado.");
+  }, 900);
+}
+
+const chartData = {};
+
+function drawChart(id, color, max, unit) {
+  const canvas = $(id);
+  if (!canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.max(rect.width, 280);
+  const height = 220;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  const values = chartData[id] || Array.from({length: 24}, () => Math.random() * max);
+  chartData[id] = values;
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.strokeStyle = "#193849";
+  ctx.lineWidth = 1;
+
+  for (let i = 1; i <= 4; i++) {
+    const y = height - i * (height - 30) / 4;
+    ctx.beginPath();
+    ctx.moveTo(32, y);
+    ctx.lineTo(width - 8, y);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "#7895a5";
+  ctx.font = "10px Consolas";
+  ctx.fillText(max + unit, 2, 15);
+  ctx.fillText("0" + unit, 12, height - 8);
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+
+  values.forEach((value, i) => {
+    const x = 34 + i * (width - 48) / (values.length - 1);
+    const y = height - 16 - (value / max) * (height - 38);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.fillText("ÚLTIMAS 24 MUESTRAS · DEMO", 38, height - 1);
+}
+
+function drawAllCharts() {
+  drawChart("cpuChart", "#00e5ff", 100, "%");
+  drawChart("memChart", "#00ff9c", 100, "%");
+  drawChart("latChart", "#ffcc66", 200, "ms");
+  drawChart("netChart", "#bd8cff", 100, "MB/s");
+}
+
+function refreshCharts() {
+  ["cpuChart", "memChart", "latChart", "netChart"].forEach(id => {
+    chartData[id] = Array.from({length: 24}, () => Math.random() * (
+      id === "latChart" ? 200 : id === "netChart" ? 100 : 100
+    ));
+  });
+  drawAllCharts();
+  addEvent("Gráficos de demostración actualizados.");
+}
+
+function updateMetrics() {
+  const cpu = Math.floor(20 + Math.random() * 65);
+  const mem = Math.floor(35 + Math.random() * 50);
+  const disk = Math.floor(30 + Math.random() * 40);
+  const latency = Math.floor(20 + Math.random() * 100);
+
+  $("cpuText").textContent = cpu + "%";
+  $("cpuBar").style.width = cpu + "%";
+  $("memText").textContent = mem + "%";
+  $("memBar").style.width = mem + "%";
+  $("diskText").textContent = disk + "%";
+  $("diskBar").style.width = disk + "%";
+  $("latency").textContent = latency + " ms";
+}
+
+window.addEventListener("resize", () => {
+  if ($("observability").classList.contains("active")) drawAllCharts();
+});
+
+updateMetrics();
+drawAllCharts();
+setInterval(updateMetrics, 5000);
+</script>
+
 </body>
 </html>
