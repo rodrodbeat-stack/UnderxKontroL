@@ -739,3 +739,63 @@
     transition: none;
   }
 }
+/* SKYNET OBSERVABILITY */
+
+.sk-observability-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sk-observability-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #00ff9d;
+  font-size: 10px;
+}
+
+.sk-demo-warning {
+  margin-bottom: 18px;
+  padding: 12px;
+  color: #ffd166;
+  font-size: 11px;
+  line-height: 1.7;
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  background: rgba(255, 209, 102, 0.05);
+}
+
+.sk-chart-container {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: 190px;
+}
+
+.sk-chart-container canvas {
+  display: block;
+  width: 100%;
+  height: 190px;
+}
+
+.sk-chart-legend {
+  margin-top: 12px;
+  color: #7d9db5;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 600px) {
+  .sk-observability-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sk-chart-container,
+  .sk-chart-container canvas {
+    height: 180px;
+  }
+}
