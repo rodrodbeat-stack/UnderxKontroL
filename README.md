@@ -1,4 +1,4 @@
-# SKYNET — Governance · Security · CI/CD Dashboard
+# SKYNET — Governance · Security · CI/CD Dashboard1
 
 Dashboard web responsive con estética futurista inspirada en interfaces sci-fi/Robotech: gobernanza cloud, DevSecOps, pipeline de despliegue, entornos y observabilidad.
 
