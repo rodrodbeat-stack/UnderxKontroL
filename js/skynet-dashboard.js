@@ -171,9 +171,12 @@
       observability: observabilityView,
       deploy: deployView
     };
+content.innerHTML = views[id]();
+bindActions(id);
 
-    content.innerHTML = views[id]();
-    bindActions(id);
+if (id === "observability") {
+  initObservabilityCharts();
+}
   }
 
   function commandView() {
@@ -327,26 +330,293 @@
       </article>
     `;
   }
+function observabilityView() {
+  return `
+    <div class="sk-observability-header">
+      <div>
+        <div class="sk-panel-title">◎ OBSERVABILITY COMMAND CENTER</div>
+        <p>Monitorización visual de infraestructura y servicios.</p>
+      </div>
+      <div class="sk-observability-status">
+        <span class="sk-pulse"></span>
+        SIMULATION ACTIVE
+      </div>
+    </div>
 
-  function observabilityView() {
-    return `
+    <div class="sk-demo-warning">
+      ⚠ DEMO MODE — MÉTRICAS SINTÉTICAS, NO SON DATOS REALES.
+    </div>
+
+    <div class="sk-grid sk-grid-3">
+      <article class="sk-metric">
+        <span class="sk-metric-number" id="obs-cpu-value">42%</span>
+        <strong>CPU USAGE</strong>
+        <small>Utilización simulada</small>
+      </article>
+
+      <article class="sk-metric">
+        <span class="sk-metric-number" id="obs-memory-value">64%</span>
+        <strong>MEMORY USAGE</strong>
+        <small>Memoria simulada</small>
+      </article>
+
+      <article class="sk-metric">
+        <span class="sk-metric-number" id="obs-latency-value">85 ms</span>
+        <strong>RESPONSE TIME</strong>
+        <small>Latencia simulada</small>
+      </article>
+    </div>
+
+    <div class="sk-grid sk-grid-2">
+      <article class="sk-panel">
+        <div class="sk-panel-title">▥ CPU UTILIZATION</div>
+        <div class="sk-chart-container">
+          <canvas id="obs-cpu-chart" aria-label="Gráfico simulado de CPU"></canvas>
+        </div>
+        <div class="sk-chart-legend">CPU · % DE UTILIZACIÓN</div>
+      </article>
+
+      <article class="sk-panel">
+        <div class="sk-panel-title">▥ MEMORY CONSUMPTION</div>
+        <div class="sk-chart-container">
+          <canvas id="obs-memory-chart" aria-label="Gráfico simulado de memoria"></canvas>
+        </div>
+        <div class="sk-chart-legend">MEMORIA · % DE UTILIZACIÓN</div>
+      </article>
+
+      <article class="sk-panel">
+        <div class="sk-panel-title">▥ NETWORK TRAFFIC</div>
+        <div class="sk-chart-container">
+          <canvas id="obs-network-chart" aria-label="Gráfico simulado de red"></canvas>
+        </div>
+        <div class="sk-chart-legend">TRÁFICO · Mbps SIMULADOS</div>
+      </article>
+
+      <article class="sk-panel">
+        <div class="sk-panel-title">▥ SERVICE LATENCY</div>
+        <div class="sk-chart-container">
+          <canvas id="obs-latency-chart" aria-label="Gráfico simulado de latencia"></canvas>
+        </div>
+        <div class="sk-chart-legend">LATENCIA · MILISEGUNDOS</div>
+      </article>
+    </div>
+
+    <article class="sk-panel">
+      <div class="sk-panel-title">◉ MONITORING TOOLS</div>
+
       <div class="sk-grid sk-grid-3">
         ${toolCard("GRAFANA", "http://localhost:3000")}
         ${toolCard("PROMETHEUS", "http://localhost:9090")}
         ${toolCard("KIBANA", "http://localhost:5601")}
       </div>
-      <article class="sk-panel">
-        <div class="sk-panel-title">OBSERVABILITY CENTER</div>
-        <p>Los accesos localhost funcionan únicamente si esas
-        herramientas están desplegadas y accesibles desde tu dispositivo
-        o red. GitHub Pages no aloja estos servicios.</p>
-        <div class="sk-note">
-          MÉTRICAS, LOGS Y ALERTAS REALES: PENDIENTES DE CONEXIÓN.
-        </div>
-      </article>
+
+      <p class="sk-note">
+        Estos enlaces requieren que los servicios estén desplegados
+        y sean accesibles desde tu dispositivo.
+      </p>
+    </article>
+  `;
+}
     `;
   }
+let obsTimer = null;
 
+function initObservabilityCharts() {
+  if (obsTimer) {
+    clearInterval(obsTimer);
+    obsTimer = null;
+  }
+
+  const definitions = [
+    {
+      id: "obs-cpu-chart",
+      metric: "obs-cpu-value",
+      base: 42,
+      min: 10,
+      max: 90,
+      unit: "%",
+      color: "#00eaff"
+    },
+    {
+      id: "obs-memory-chart",
+      metric: "obs-memory-value",
+      base: 64,
+      min: 25,
+      max: 95,
+      unit: "%",
+      color: "#168cff"
+    },
+    {
+      id: "obs-network-chart",
+      metric: null,
+      base: 120,
+      min: 10,
+      max: 250,
+      unit: " Mbps",
+      color: "#00ff9d"
+    },
+    {
+      id: "obs-latency-chart",
+      metric: "obs-latency-value",
+      base: 85,
+      min: 20,
+      max: 220,
+      unit: " ms",
+      color: "#c084fc"
+    }
+  ];
+
+  const histories = {};
+
+  definitions.forEach(def => {
+    histories[def.id] = Array.from(
+      { length: 24 },
+      () => Math.round(
+        def.base + (Math.random() - 0.5) * def.base * 0.5
+      )
+    );
+
+    drawObservabilityChart(def, histories[def.id]);
+  });
+
+  function updateCharts() {
+    definitions.forEach(def => {
+      const history = histories[def.id];
+
+      const last = history[history.length - 1];
+      const next = Math.round(
+        last + (Math.random() - 0.5) * def.base * 0.25
+      );
+
+      history.push(Math.max(def.min, Math.min(def.max, next)));
+      history.shift();
+
+      drawObservabilityChart(def, history);
+
+      const metric = def.metric
+        ? document.getElementById(def.metric)
+        : null;
+
+      if (metric) {
+        metric.textContent = history[history.length - 1] + def.unit;
+      }
+    });
+  }
+
+  obsTimer = setInterval(() => {
+    if (!document.getElementById("obs-cpu-chart")) {
+      clearInterval(obsTimer);
+      obsTimer = null;
+      return;
+    }
+
+    updateCharts();
+  }, 2000);
+}
+
+function drawObservabilityChart(def, values) {
+  const canvas = document.getElementById(def.id);
+  if (!canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width) return;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = rect.width;
+  const height = 190;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  const pad = { top: 12, right: 10, bottom: 24, left: 30 };
+  const plotWidth = width - pad.left - pad.right;
+  const plotHeight = height - pad.top - pad.bottom;
+
+  const maxValue = Math.max(def.max, ...values) * 1.05;
+  const minValue = 0;
+
+  ctx.clearRect(0, 0, width, height);
+
+  ctx.font = "10px monospace";
+  ctx.textBaseline = "middle";
+
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (plotHeight * i / 4);
+
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(0,234,255,0.12)";
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(width - pad.right, y);
+    ctx.stroke();
+
+    ctx.fillStyle = "#7d9db5";
+    ctx.textAlign = "right";
+    ctx.fillText(
+      Math.round(maxValue * (4 - i) / 4),
+      pad.left - 6,
+      y
+    );
+  }
+
+  const points = values.map((value, i) => ({
+    x: pad.left + (i / (values.length - 1)) * plotWidth,
+    y: pad.top + plotHeight -
+      ((value - minValue) / (maxValue - minValue)) * plotHeight
+  }));
+
+  const gradient = ctx.createLinearGradient(
+    0, pad.top, 0, pad.top + plotHeight
+  );
+
+  gradient.addColorStop(0, "rgba(0,234,255,0.25)");
+  gradient.addColorStop(1, "rgba(0,234,255,0.01)");
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, pad.top + plotHeight);
+
+  points.forEach(point => {
+    ctx.lineTo(point.x, point.y);
+  });
+
+  ctx.lineTo(points[points.length - 1].x, pad.top + plotHeight);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  ctx.beginPath();
+
+  points.forEach((point, i) => {
+    if (i === 0) {
+      ctx.moveTo(point.x, point.y);
+    } else {
+      ctx.lineTo(point.x, point.y);
+    }
+  });
+
+  ctx.strokeStyle = def.color;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = def.color;
+  ctx.shadowBlur = 8;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  const last = points[points.length - 1];
+
+  ctx.beginPath();
+  ctx.arc(last.x, last.y, 3, 0, Math.PI * 2);
+  ctx.fillStyle = def.color;
+  ctx.fill();
+
+  ctx.fillStyle = "#7d9db5";
+  ctx.textAlign = "left";
+  ctx.fillText("-46s", pad.left, height - 7);
+
+  ctx.textAlign = "right";
+  ctx.fillText("NOW", width - pad.right, height - 7);
+}
   function deployView() {
     return `
       <article class="sk-panel">
